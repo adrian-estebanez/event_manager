@@ -5,6 +5,8 @@ import io
 import base64
 from django.core.mail import send_mail
 from django.template.loader import render_to_string 
+from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 class Event(models.Model):
     PUBLIC = 'public'
@@ -24,6 +26,7 @@ class Event(models.Model):
     max_attendees = models.PositiveIntegerField()
     event_type = models.CharField(max_length=10, choices=EVENT_TYPES, default=PUBLIC)
     created_at = models.DateTimeField(auto_now_add=True)
+    es_privado = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -38,7 +41,7 @@ class TicketType(models.Model):
         return f"{self.name} - {self.event.name}"
 
 class Registration(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='registrations')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='registrations')
     ticket_type = models.ForeignKey('TicketType', on_delete=models.CASCADE, related_name='registrations')
     event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='registrations')
     registered_at = models.DateTimeField(auto_now_add=True)
@@ -74,3 +77,12 @@ class Registration(models.Model):
         return f"{self.user.email} - {self.event.name} ({self.ticket_type.name})"
 
 
+User = get_user_model()
+
+class EventIvitation(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='invitaciones')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    enviado = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('event', 'user')
