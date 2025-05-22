@@ -1,3 +1,4 @@
+from urllib import request
 from django.shortcuts import render
 from event_manager import settings
 from rest_framework import viewsets, permissions, status
@@ -46,10 +47,10 @@ class RegistrationViewSet(viewsets.ModelViewSet):
         registration = serializer.save(user=self.request.user)
 
         send_mail(
-    subject='Inscripción confirmada',
-    message=f'Te has inscrito correctamente al evento "{event.name}".',
-    from_email=settings.DEFAULT_FROM_EMAIL,
-    recipient_list=[request.user.email],
+            subject='Inscripción confirmada',
+            message=f'Te has inscrito correctamente al evento "{event.name}".',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[request.user.email],
         )
 
     
@@ -72,7 +73,7 @@ class CancelRegistrationView(APIView):
         # Enviar correo de cancelación
         send_mail(
             subject="Cancelación de inscripción",
-            message=f"Tu inscripción al evento '{event_name}' ha sido cancelada.",
+            message=f"Tu inscripción al evento '{registration.event.name}' ha sido cancelada.",
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[request.user.email],
         )
