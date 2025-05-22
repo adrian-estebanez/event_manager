@@ -11,6 +11,6 @@ router.register(r'invitaciones', EventInvitationViewSet, basename='invitacion')
 urlpatterns = [
     path('', include(router.urls)),
     path('cancel-registration/<int:registration_id>/', CancelRegistrationView.as_view(), name='cancel-registration'),
-    path('events/<int:event_id>/stats/', EventStatsView.as_view(), name='event-stats'),
+    path('stats/<int:event_id>/', EventStatsView.as_view(), name='event-stats'),
     
     ]

@@ -46,10 +46,10 @@ class RegistrationViewSet(viewsets.ModelViewSet):
         registration = serializer.save(user=self.request.user)
 
         send_mail(
-            subject="Registro confirmado",
-            message=f"Te has registrado exitosamente al evento: {registration.event.name}.",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
+    subject='Inscripción confirmada',
+    message=f'Te has inscrito correctamente al evento "{event.name}".',
+    from_email=settings.DEFAULT_FROM_EMAIL,
+    recipient_list=[request.user.email],
         )
 
     
@@ -81,26 +81,32 @@ class CancelRegistrationView(APIView):
     
 
 class EventStatsView(APIView):
-    permissions_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, event_id):
         try:
-            event = Event.objects.get(id=event_id, organizer=request.user)
+            event = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
-            return Response({"detail":
-                             "Evento no encontrado o sin permisos"}, status=404)
+            return Response({"error": "Evento no encontrado."}, status=404)
+
         registrations = Registration.objects.filter(event=event)
         total_registrations = registrations.count()
-        total_income = sum(r.ticket_type.prices for r in registrations if r.ticket_type)
-        confirmed = registrations.exclude(qr_code='').count()
+        total_revenue = sum([r.ticket_type.price for r in registrations])
 
-        data = {
-             "evento": event.name,
-            "total_inscritos": total_registrations,
-            "ingresos_totales": total_income,
-            "asistentes_confirmados": confirmed
-        }
-        return Response(data)
+        ticket_summary = {}
+        for ticket_type in event.ticket_types.all():
+            count = registrations.filter(ticket_type=ticket_type).count()
+            ticket_summary[ticket_type.name] = {
+                "sold": count,
+                "total": float(ticket_type.price * count)
+            }
+
+        return Response({
+            "event": event.name,
+            "registrations": total_registrations,
+            "revenue": float(total_revenue),
+            "tickets": ticket_summary
+        })
 
 class EventInvitationViewSet(viewsets.ModelViewSet):
     serializer_class = EventInvitationSerializer
