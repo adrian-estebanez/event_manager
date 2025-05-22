@@ -4,14 +4,14 @@ Este proyecto es una aplicación web para gestionar eventos, tipos de entradas e
 Permite a los usuarios registrarse, visualizar eventos, inscribirse, recibir un código QR, cancelar inscripciones, y a los administradores gestionar todo desde el panel.
 
 ---
-##AVISO##
+# AVISO
 AÚN NO TENGO HECHO EL FRONTEND Y NO SE PUEDE PROBAR COMO TAL EN WEB
 
 # Requisitos
 
 - Python 3.10 o superior
 - pip
-- Virtualenv (opcional pero recomendado)
+- Virtualenv 
 - PostgreSQL o SQLite
 
 ---
